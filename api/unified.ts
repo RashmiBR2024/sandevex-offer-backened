@@ -47,6 +47,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return await handleOffers(req, res);
   } else if (path === 'appointments') {
     return await handleAppointments(req, res);
+  } else if (path === 'offer-status') {
+    return await handleOfferStatus(req, res);
+  } else if (path === 'create-offer') {
+    return await handleCreateOffer(req, res);
   } else {
     return res.status(404).json({ message: 'Endpoint not found' });
   }
@@ -220,6 +224,106 @@ async function handleAppointments(req: VercelRequest, res: VercelResponse) {
       console.error('Error creating appointment:', error);
       return res.status(500).json({
         message: 'Failed to create appointment',
+        error: error?.message || 'Unknown error'
+      });
+    }
+  }
+
+  return res.status(405).json({ message: 'Method not allowed' });
+}
+
+async function handleOfferStatus(req: VercelRequest, res: VercelResponse) {
+  if (req.method === 'GET') {
+    try {
+      const { id } = req.query;
+      
+      if (!id || typeof id !== 'string') {
+        return res.status(400).json({ message: 'Candidate ID is required' });
+      }
+
+      // Validate if it's a valid MongoDB ObjectId
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ message: 'Invalid candidate ID format' });
+      }
+
+      const offer = await Offer.findOne({
+        candidateId: new mongoose.Types.ObjectId(id),
+        status: { $in: ['pending', 'accepted', 'declined'] }
+      }).sort({ sentAt: -1 });
+
+      if (!offer) {
+        return res.status(404).json({ message: 'No offer found for this candidate' });
+      }
+
+      return res.json({
+        status: offer.status,
+        sentAt: offer.sentAt,
+        respondedAt: offer.respondedAt,
+        expiresAt: offer.expiresAt
+      });
+    } catch (error: any) {
+      console.error('Error getting offer status:', error);
+      return res.status(500).json({
+        message: 'Failed to get offer status',
+        error: error?.message || 'Unknown error'
+      });
+    }
+  }
+
+  return res.status(405).json({ message: 'Method not allowed' });
+}
+
+async function handleCreateOffer(req: VercelRequest, res: VercelResponse) {
+  if (req.method === 'POST') {
+    try {
+      const { candidateId, email, status } = req.body;
+
+      if (!candidateId || !email) {
+        return res.status(400).json({ message: 'Candidate ID and email are required' });
+      }
+
+      // Check if candidate exists
+      const candidate = await Student.findById(candidateId);
+      if (!candidate) {
+        return res.status(404).json({ message: 'Candidate not found' });
+      }
+
+      // Check if offer already exists
+      const existingOffer = await Offer.findOne({ candidateId });
+      if (existingOffer) {
+        return res.status(400).json({ message: 'Offer already exists for this candidate' });
+      }
+
+      // Create offer record
+      const expiresAt = new Date();
+      expiresAt.setHours(expiresAt.getHours() + 24); // 24 hours to respond
+
+      const offer = new Offer({
+        candidateId,
+        email,
+        status: status || 'pending',
+        expiresAt,
+        sentAt: new Date()
+      });
+
+      await offer.save();
+
+      return res.status(201).json({
+        message: 'Offer record created successfully',
+        offer: {
+          id: offer._id,
+          candidateId: offer.candidateId,
+          email: offer.email,
+          status: offer.status,
+          sentAt: offer.sentAt,
+          expiresAt: offer.expiresAt
+        }
+      });
+
+    } catch (error: any) {
+      console.error('Error creating offer record:', error);
+      return res.status(500).json({
+        message: 'Failed to create offer record',
         error: error?.message || 'Unknown error'
       });
     }
