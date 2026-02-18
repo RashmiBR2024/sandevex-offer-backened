@@ -60,28 +60,22 @@
 
 import mongoose from "mongoose";
 
+// Load .env only locally (NOT on Vercel)
+if (process.env.NODE_ENV !== "production") {
+  const dotenv = require("dotenv");
+  dotenv.config();
+}
+
 let isConnected = false;
 
 export const connectDB = async () => {
-  if (isConnected) {
-    return;
-  }
+  if (isConnected) return;
 
-  const MONGODB_URI = process.env.MONGODB_URI;
+  const uri = process.env.MONGODB_URI;
+  if (!uri) throw new Error("MONGODB_URI not found in environment variables");
 
-  if (!MONGODB_URI) {
-    throw new Error("MONGODB_URI not found in environment variables");
-  }
+  const db = await mongoose.connect(uri, { bufferCommands: false });
 
-  try {
-    const db = await mongoose.connect(MONGODB_URI, {
-      bufferCommands: false,
-    });
-
-    isConnected = (db.connections[0]?.readyState || 0) === 1;
-    console.log("MongoDB connected");
-  } catch (error) {
-    console.error("MongoDB connection failed:", error);
-    throw error;
-  }
+  isConnected = db.connections[0]?.readyState === 1;
+  console.log("MongoDB connected");
 };
