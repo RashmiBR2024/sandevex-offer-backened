@@ -1,6 +1,5 @@
 import express from 'express';
 import { Student } from '../models/Student';
-import { connectDB } from '../config/db';
 
 const router = express.Router();
 
@@ -11,9 +10,6 @@ router.use((_req, res, next) => {
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   next();
 });
-
-// Connect to MongoDB
-connectDB();
 
 // Get all students
 router.get('/', async (_req, res) => {

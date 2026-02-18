@@ -1,14 +1,21 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import path from "path";
 import { connectDB } from "./config/db";
 import studentRoutes from "./routes/students";
 import offerRoutes from "./routes/offerRoutes";
 import slotRoutes from "./routes/slotRoutes";
 import appointmentRoutes from "./routes/appointmentRoutes";
 
-// Load environment variables
-dotenv.config();
+// Load environment variables from .env.local specifically
+const envPath = path.resolve(__dirname, '../.env.local');
+dotenv.config({ path: envPath });
+
+// Fallback to default .env if .env.local doesn't exist
+if (!process.env.MONGODB_URI) {
+  dotenv.config();
+}
 
 const app = express();
 
