@@ -35,18 +35,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   });
 
-  const { method, query } = req;
+  const { query } = req;
   const path = query.path as string;
 
   // Route based on path parameter
   if (path === 'students') {
-    await handleStudents(req, res);
+    return await handleStudents(req, res);
   } else if (path === 'candidates') {
-    await handleCandidates(req, res);
+    return await handleCandidates(req, res);
   } else if (path === 'offers') {
-    await handleOffers(req, res);
+    return await handleOffers(req, res);
   } else if (path === 'appointments') {
-    await handleAppointments(req, res);
+    return await handleAppointments(req, res);
   } else {
     return res.status(404).json({ message: 'Endpoint not found' });
   }
