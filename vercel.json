@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "api/offers.ts": {
+      "runtime": "@vercel/node"
+    },
+    "api/health.ts": {
+      "runtime": "@vercel/node"
+    },
+    "api/simple.ts": {
+      "runtime": "@vercel/node"
+    }
+  }
+}
