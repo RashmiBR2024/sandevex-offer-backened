@@ -80,4 +80,15 @@ app.get("/api/health", (_req, res) => {
   res.status(200).json({ status: "OK", message: "Server is running" });
 });
 
+app.get("/api/env-check", (_req, res) => {
+  res.json({
+    NODE_ENV: process.env.NODE_ENV || "missing",
+    MONGODB_URI_EXISTS: !!process.env.MONGODB_URI,
+    MONGODB_URI_PREVIEW: process.env.MONGODB_URI
+      ? process.env.MONGODB_URI.substring(0, 20) + "..."
+      : "missing",
+  });
+});
+
+
 export default app;
