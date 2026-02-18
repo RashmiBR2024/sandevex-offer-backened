@@ -1,6 +1,7 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import cors from 'cors';
 import mongoose from 'mongoose';
+import '../src/models'; // Import all models to register them
 import { Appointment } from '../src/models/Appointment';
 
 // CORS middleware
