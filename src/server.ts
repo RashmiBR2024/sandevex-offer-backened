@@ -47,6 +47,20 @@ app.use("/api/offers", offerRoutes);
 app.use("/api/slots", slotRoutes);
 app.use("/api/appointments", appointmentRoutes);
 
+app.get("/api/debug-env", async (_req, res) => {
+  try {
+    res.json({
+      nodeEnv: process.env.NODE_ENV,
+      hasMongoURI: !!process.env.MONGODB_URI,
+      mongoPreview: process.env.MONGODB_URI
+        ? process.env.MONGODB_URI.substring(0, 25) + "..."
+        : "missing"
+    });
+  } catch (e) {
+    res.status(500).json({ error: String(e) });
+  }
+});
+
 
 /* ===================== HEALTH ===================== */
 
