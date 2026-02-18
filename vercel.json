@@ -1,13 +1,9 @@
 {
-  "functions": {
-    "api/offers.ts": {
-      "runtime": "nodejs18.x"
-    },
-    "api/health.ts": {
-      "runtime": "nodejs18.x"
-    },
-    "api/simple.ts": {
-      "runtime": "nodejs18.x"
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/*.ts",
+      "use": "@vercel/node"
     }
-  }
+  ]
 }
