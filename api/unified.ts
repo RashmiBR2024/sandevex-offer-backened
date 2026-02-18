@@ -64,6 +64,8 @@ async function handleStudents(req: VercelRequest, res: VercelResponse) {
       const search = req.query.search as string || '';
       const skip = (page - 1) * limit;
 
+      console.log('📊 Students API - Page:', page, 'Limit:', limit, 'Search:', search);
+
       // Build search query if search term is provided
       let searchQuery = {};
       if (search) {
@@ -74,6 +76,7 @@ async function handleStudents(req: VercelRequest, res: VercelResponse) {
             { collegeName: { $regex: search, $options: 'i' } }
           ]
         };
+        console.log('🔍 Search query:', JSON.stringify(searchQuery, null, 2));
       }
 
       const students = await Student.find(searchQuery)
@@ -82,6 +85,8 @@ async function handleStudents(req: VercelRequest, res: VercelResponse) {
         .limit(limit);
 
       const total = await Student.countDocuments(searchQuery);
+
+      console.log('📈 Found students:', students.length, 'Total:', total);
 
       return res.status(200).json({
         students,
